@@ -19,7 +19,7 @@ const routes = [
     component: Login
   },
   { path: '/Eventos', name: 'Eventos', component: Eventos},
-  { path: '/ComprarTicket', name: 'ComprarTicket', component: ComprarTicket},
+  { path: '/ComprarTicket/:id', name: 'ComprarTicket', component: ComprarTicket }
 ]
 
 const router = createRouter({

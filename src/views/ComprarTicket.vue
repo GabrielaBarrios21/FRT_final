@@ -3,10 +3,10 @@
     <div class="grid-container">
       <!-- Columna izquierda: Detalles del evento -->
       <div class="info-panel">
-        <h2>{{ evento.title }}</h2>
-        <p><strong>Ubicación:</strong> {{ evento.location }}</p>
-        <p><strong>Fecha:</strong> {{ evento.date }}</p>
-        <p><strong>Precio:</strong> ${{ evento.price }}</p>
+        <h2>{{ evento.title || 'Cargando...' }}</h2>
+        <p><strong>Ubicación:</strong> {{ evento.location || 'N/A' }}</p>
+        <p><strong>Fecha:</strong> {{ formatoFecha(evento.eventDate) }}</p>
+        <p><strong>Precio:</strong> ${{ evento.price || 'N/A' }}</p>
 
         <label><strong>Tipo de entrada:</strong></label>
         <select v-model="tipoEntrada" class="input-select">
@@ -38,15 +38,22 @@
         </div>
 
         <!-- Asientos seleccionados -->
-        <center><div class="seleccionados-container" v-if="asientosSeleccionados.length">
-          <h4>Asientos seleccionados:</h4>
-          <div class="chips">
-            <span class="chip" v-for="(asiento, index) in asientosSeleccionados" :key="index">
-              {{ asiento }}
-            </span>
+        <center>
+          <div class="seleccionados-container" v-if="asientosSeleccionados.length">
+            <h4>Asientos seleccionados:</h4>
+            <div class="chips">
+              <span class="chip" v-for="(asiento, index) in asientosSeleccionados" :key="index">
+                {{ asiento }}
+              </span>
+            </div>
           </div>
-        </div></center>
+        </center>
       </div>
+    </div>
+
+    <!-- Mensaje de estado del botón -->
+    <div v-if="botonDeshabilitado" class="mensaje-error">
+      {{ mensajeBotonDeshabilitado }}
     </div>
 
     <!-- Botón de compra -->
@@ -57,122 +64,264 @@
 </template>
 
 <script>
-import Swal from 'sweetalert2'
+import { ref, onMounted, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'Comprar',
-  data() {
-    return {
-      evento: {
-        title: 'Concierto de Rock',
-        location: 'Estadio Nacional',
-        date: '2025-07-10 21:00',
-        price: 120.0
-      },
-      tipoEntrada: 'numerada',
-      cantidad: 4,
-      asientos: [],
-      asientosSeleccionados: [],
-    }
-  },
-  mounted() {
-    this.generarAsientos()
-  },
-  watch: {
-    cantidad() {
-      this.asientosSeleccionados = []
-    },
-    tipoEntrada() {
-      this.asientosSeleccionados = []
-    }
-  },
-  computed: {
-    botonDeshabilitado() {
-      if (this.tipoEntrada === 'numerada') {
-        return this.asientosSeleccionados.length !== this.cantidad
-      }
-      return this.cantidad < 1
-    }
-  },
-  methods: {
-    generarAsientos() {
-      const filas = 'ABCDEFGHIJ'.split('')
-      const columnas = 18
-      const ocupados = ['B3', 'C4', 'D10', 'F2', 'G17']
+  setup() {
+    const evento = ref({});
+    const tipoEntrada = ref('numerada');
+    const cantidad = ref(1); // Cambié el valor por defecto a 1 para evitar problemas iniciales
+    const asientos = ref([]);
+    const asientosSeleccionados = ref([]);
+    const route = useRoute();
+    const router = useRouter();
+    const buyerId = 1; // ID estático del comprador
 
-      this.asientos = []
+    // Obtener datos del evento
+    const fetchEvento = async () => {
+      const id = route.params.id;
+      try {
+        const response = await fetch(`http://localhost:8081/events/${id}`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+        if (!response.ok) throw new Error(`Error ${response.status}: No se pudo cargar el evento`);
+        const data = await response.json();
+        evento.value = {
+          id: data.id,
+          organizerId: data.organizerId,
+          title: data.title,
+          description: data.description || 'Sin descripción',
+          location: data.location || 'N/A',
+          eventDate: data.eventDate.includes('T')
+            ? new Date(data.eventDate).toISOString()
+            : new Date(data.eventDate.replace(' ', 'T') + 'Z').toISOString(),
+          capacity: data.capacity || 0,
+          status: data.status || 'N/A',
+          price: data.price || 120.0 // Valor por defecto
+        };
+      } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo cargar el evento. Verifica el ID o la conexión con el servidor.',
+          confirmButtonColor: '#ff416c'
+        });
+      }
+    };
+
+    // Obtener asientos ocupados desde la API
+    const fetchAsientosOcupados = async () => {
+      const id = route.params.id;
+      try {
+        const response = await fetch(`http://localhost:8082/tickets/event/${id}`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+        if (!response.ok) throw new Error('Error al cargar asientos ocupados');
+        const tickets = await response.json();
+        return tickets.map(ticket => ticket.seatNumber);
+      } catch (error) {
+        console.error('Error:', error);
+        return [];
+      }
+    };
+
+    // Generar asientos
+    const generarAsientos = async () => {
+      const filas = 'ABCDEFGHIJ'.split('');
+      const columnas = 18;
+      const ocupados = await fetchAsientosOcupados();
+
+      asientos.value = [];
       for (let fila of filas) {
         for (let col = 1; col <= columnas; col++) {
-          const codigo = `${fila}${col}`
-          this.asientos.push({
+          const codigo = `${fila}${col}`;
+          asientos.value.push({
             codigo,
             ocupado: ocupados.includes(codigo)
-          })
+          });
         }
       }
-    },
-    seleccionarAsiento(asiento) {
-      if (asiento.ocupado) return
+    };
 
-      const index = this.asientosSeleccionados.indexOf(asiento.codigo)
+    // Formatear fecha
+    const formatoFecha = (fecha) => {
+      if (!fecha) return 'Sin fecha';
+      const date = new Date(fecha);
+      if (isNaN(date)) return 'Fecha inválida';
+      return date.toLocaleString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).replace(',', '');
+    };
 
+    // Seleccionar asiento
+    const seleccionarAsiento = (asiento) => {
+      if (asiento.ocupado) return;
+      const index = asientosSeleccionados.value.indexOf(asiento.codigo);
       if (index >= 0) {
-        this.asientosSeleccionados.splice(index, 1)
+        asientosSeleccionados.value.splice(index, 1);
       } else {
-        if (this.asientosSeleccionados.length === this.cantidad) {
-          this.asientosSeleccionados.shift()
+        if (asientosSeleccionados.value.length === cantidad.value) {
+          asientosSeleccionados.value.shift();
         }
-        this.asientosSeleccionados.push(asiento.codigo)
+        asientosSeleccionados.value.push(asiento.codigo);
       }
-    },
-    mostrarError(mensaje) {
+      // Depuración
+      console.log('Asientos seleccionados:', asientosSeleccionados.value);
+      console.log('Cantidad:', cantidad.value);
+    };
+
+    // Mostrar error
+    const mostrarError = (mensaje) => {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
         text: mensaje
-      })
-    },
-    mostrarExito() {
-  Swal.fire({
-    icon: 'success',
-    title: '¡Compra realizada con éxito!',
-    showConfirmButton: false,
-    timer: 2500,
-    timerProgressBar: true,
-    willClose: () => {
-      this.$router.push('/eventos')
-    }
-  })
-},
-    realizarCompra() {
-      if (!this.cantidad || this.cantidad < 1) {
-        this.mostrarError('Por favor, ingresa una cantidad válida de entradas.')
-        return
+      });
+    };
+
+    // Mostrar éxito
+    const mostrarExito = () => {
+      Swal.fire({
+        icon: 'success',
+        title: '¡Compra realizada con éxito!',
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true,
+        willClose: () => {
+          router.push('/eventos');
+        }
+      });
+    };
+
+    // Realizar compra
+    const realizarCompra = async () => {
+      if (!cantidad.value || cantidad.value < 1) {
+        mostrarError('Por favor, ingresa una cantidad válida de entradas.');
+        return;
       }
 
-      if (this.tipoEntrada === 'numerada') {
-        if (this.asientosSeleccionados.length !== this.cantidad) {
-          this.mostrarError(`Debes seleccionar exactamente ${this.cantidad} asiento(s).`)
-          return
+      if (tipoEntrada.value === 'numerada') {
+        if (asientosSeleccionados.value.length !== cantidad.value) {
+          mostrarError(`Debes seleccionar exactamente ${cantidad.value} asiento(s).`);
+          return;
         }
-      } else if (this.tipoEntrada === 'general') {
-        if (this.cantidad > 10) {
-          this.mostrarError('No puedes comprar más de 10 entradas generales.')
-          return
+      } else if (tipoEntrada.value === 'general') {
+        if (cantidad.value > 10) {
+          mostrarError('No puedes comprar más de 10 entradas generales.');
+          return;
         }
       }
 
-      this.mostrarExito()
-    }
+      // Enviar solicitud POST a /tickets
+      try {
+        const tickets = tipoEntrada.value === 'numerada'
+          ? asientosSeleccionados.value.map(seat => ({
+              eventId: evento.value.id,
+              buyerId,
+              seatNumber: seat,
+              price: evento.value.price,
+              status: 'CONFIRMED',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            }))
+          : Array.from({ length: cantidad.value }, () => ({
+              eventId: evento.value.id,
+              buyerId,
+              seatNumber: 'General',
+              price: evento.value.price,
+              status: 'CONFIRMED',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            }));
+
+        for (const ticket of tickets) {
+          const response = await fetch('http://localhost:8082/tickets', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(ticket)
+          });
+          if (!response.ok) {
+            throw new Error(`Error ${response.status}: No se pudo registrar el ticket`);
+          }
+        }
+
+        mostrarExito();
+      } catch (error) {
+        console.error('Error:', error);
+        mostrarError('No se pudo completar la compra. Intenta de nuevo.');
+      }
+    };
+
+    // Computado para deshabilitar botón
+    const botonDeshabilitado = computed(() => {
+      if (!cantidad.value || isNaN(cantidad.value)) {
+        return true;
+      }
+      if (tipoEntrada.value === 'numerada') {
+        return asientosSeleccionados.value.length !== cantidad.value;
+      }
+      return cantidad.value < 1;
+    });
+
+    // Mensaje para explicar por qué el botón está deshabilitado
+    const mensajeBotonDeshabilitado = computed(() => {
+      if (!cantidad.value || isNaN(cantidad.value)) {
+        return 'Por favor, ingresa una cantidad válida.';
+      }
+      if (tipoEntrada.value === 'numerada') {
+        if (asientosSeleccionados.value.length < cantidad.value) {
+          return `Selecciona ${cantidad.value - asientosSeleccionados.value.length} asiento(s) más.`;
+        }
+        if (asientosSeleccionados.value.length > cantidad.value) {
+          return `Has seleccionado demasiados asientos. Selecciona solo ${cantidad.value}.`;
+        }
+      }
+      if (cantidad.value < 1) {
+        return 'La cantidad debe ser al menos 1.';
+      }
+      return '';
+    });
+
+    // Cargar evento y asientos al montar
+    onMounted(async () => {
+      await fetchEvento();
+      await generarAsientos();
+    });
+
+    return {
+      evento,
+      tipoEntrada,
+      cantidad,
+      asientos,
+      asientosSeleccionados,
+      formatoFecha,
+      seleccionarAsiento,
+      realizarCompra,
+      botonDeshabilitado,
+      mensajeBotonDeshabilitado
+    };
   }
-}
+};
 </script>
-
-
 <style scoped>
 .comprar-container {
   padding: 50px 30px;
   color: white;
+  background: #1f1f1f;
 }
 
 .grid-container {
@@ -184,11 +333,10 @@ export default {
 .info-panel {
   flex: 1;
   min-width: 320px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
+  background: #333333;
   padding: 30px;
   border-radius: 20px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .info-panel h2 {
@@ -226,7 +374,7 @@ label {
   font-weight: bold;
   border-radius: 12px;
   margin-bottom: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .asientos-grid {
@@ -300,31 +448,5 @@ label {
 .btn-comprar:disabled {
   background-color: #ccc;
   cursor: not-allowed;
-}
-
-.mensaje-exito {
-  margin-top: 25px;
-  font-size: 1.3rem;
-  color: #00ff99;
-  font-weight: bold;
-}
-
-.mensaje-error {
-  margin-top: 20px;
-  background-color: #ff4d4d;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  color: white;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }
 </style>
