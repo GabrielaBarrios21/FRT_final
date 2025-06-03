@@ -183,7 +183,7 @@ export default {
 
 .info-panel {
   flex: 1;
-  min-width: 280px;
+  min-width: 320px;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
   padding: 30px;
@@ -214,7 +214,8 @@ label {
 
 .asientos-panel {
   flex: 2;
-  min-width: 320px;
+  min-width: 620px;
+  min-height: auto;
 }
 
 .escenario {
