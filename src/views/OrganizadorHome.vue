@@ -22,7 +22,7 @@
       <i class="bi bi-speedometer2"></i> Panel de Control
     </h1>
 
-    <!-- Panel de control con 4 opciones fijas -->
+    <!-- Panel de control con 3 opciones -->
     <div class="control-panel">
       <router-link to="/CrearEve" class="panel-option">
         <i class="bi bi-plus-circle"></i>
@@ -65,27 +65,29 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import Swal from 'sweetalert2';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'DashboardOrganizador',
   setup() {
-    const summaryCards = ref([
-      { title: 'Eventos Activos', value: '5', icon: 'bi bi-calendar-check', color: 'card-purple' },
-      { title: 'Entradas Vendidas', value: '124', icon: 'bi bi-ticket-perforated', color: 'card-orange' },
-      { title: 'Ingresos Totales', value: '$2,850', icon: 'bi bi-cash-stack', color: 'card-pink' },
-      { title: 'Porcentaje Ocupación', value: '78%', icon: 'bi bi-graph-up', color: 'card-blue' }
-    ]);
+    const upcomingEvents = ref([]);
+    const isOrganizer = true;
+    const router = useRouter();
 
-    const upcomingEvents = ref([
-      { id: 1, title: 'Concierto de Jazz', location: 'Teatro Principal', date: '2025-07-15', capacity: 200, sold: 150, revenue: '3,750' },
-      { id: 2, title: 'Charla de Tecnología', location: 'Centro de Convenciones', date: '2025-07-20', capacity: 100, sold: 80, revenue: '1,200' },
-      { id: 3, title: 'Obra de Teatro', location: 'Auditorio Municipal', date: '2025-07-25', capacity: 150, sold: 120, revenue: '2,400' }
-    ]);
+    const formatDay = (dateString) => {
+      const date = new Date(Date.parse(dateString));
+      return isNaN(date) ? '??' : date.getDate().toString().padStart(2, '0');
+    };
 
-    const formatDay = (dateString) => new Date(dateString).getDate();
-    const formatMonth = (dateString) => new Date(dateString).toLocaleString('es-ES', { month: 'short' }).toUpperCase();
+    const formatMonth = (dateString) => {
+      const date = new Date(Date.parse(dateString));
+      return isNaN(date)
+        ? '???'
+        : date.toLocaleString('es-ES', { month: 'short' }).toUpperCase();
+    };
+
 
     const logout = () => {
       Swal.fire({
@@ -94,15 +96,18 @@ export default {
         showCancelButton: true,
         confirmButtonColor: '#f5a623',
         cancelButtonColor: '#ff416c',
+        confirmButtonText: 'Sí',
+        cancelButtonText: 'Cancelar'
       }).then((result) => {
         if (result.isConfirmed) {
-          // Redirigir a login
+          // Aquí puedes limpiar storage o tokens si usas auth
+          router.push('/login'); // Redirige a login
         }
       });
     };
 
     const viewEvent = (id) => {
-      console.log('Ver evento:', id);
+      router.push(`/evento/${id}`); // Asegúrate que exista esa ruta
     };
 
     const exportData = () => {
@@ -112,33 +117,44 @@ export default {
         icon: 'info',
         confirmButtonColor: '#f5a623'
       });
+      // Aquí podrías llamar a una función que genere el CSV
     };
 
-    const sendNotifications = () => {
-      Swal.fire({
-        title: 'Enviar notificaciones',
-        input: 'textarea',
-        inputLabel: 'Mensaje personalizado',
-        inputPlaceholder: 'Escribe aquí el mensaje...',
-        showCancelButton: true,
-        confirmButtonColor: '#f5a623'
-      });
+    const fetchUpcomingEvents = async () => {
+      try {
+        const response = await fetch('http://localhost:8081/events/organizer/1');
+        if (!response.ok) throw new Error('Error al obtener eventos');
+        const data = await response.json();
+
+        upcomingEvents.value = data.map(event => ({
+          id: event.id,
+          title: event.title,
+          location: event.location,
+          date: event.date,
+          capacity: event.capacity,
+          sold: event.soldTickets || 0,
+          revenue: event.revenue || 0
+        }));
+      } catch (error) {
+        console.error('Error al cargar eventos:', error);
+      }
     };
+
+    onMounted(fetchUpcomingEvents);
 
     return {
-      summaryCards,
       upcomingEvents,
       formatDay,
       formatMonth,
       logout,
       viewEvent,
       exportData,
-      sendNotifications,
-      isOrganizer: true // Ajusta según tu lógica real
+      isOrganizer
     };
   }
 };
 </script>
+
 
 <style scoped>
 .navbar-container {

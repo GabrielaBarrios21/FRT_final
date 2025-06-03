@@ -22,7 +22,7 @@ const routes = [
   },
   { path: '/OrgHome', name:'OrganizadorHome',component: OrganizadorHome},
   { path: '/CrearEve', name:'CrearEvento',component: CrearEvento},
-  { path: '/EventosLis/EditEvent', name:'EditEvent',component: EditEvent},
+  { path: '/EventosLis/EditEvent/:id', name:'EditEvent',component: EditEvent, props: true },
   { path: '/EventosLis', name:'EventosLis',component: EventosLis},
 ]
 

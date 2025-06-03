@@ -1,3 +1,4 @@
+```vue
 <template>
     <div class="navbar-container">
       <div class="brand">
@@ -76,7 +77,6 @@
       <!-- Tarjetas de eventos -->
       <div v-for="event in filteredEvents" :key="event.id" class="event-card">
         <div class="event-image">
-        
           <div class="event-badge" :class="event.status">
             {{ formatStatus(event.status) }}
           </div>
@@ -85,16 +85,16 @@
         <div class="event-details">
           <div class="event-header">
             <h3>{{ event.title }}</h3>
-            <div class="event-actions" v-if="isOrganizer && event.organizer_id === currentUser.id">
-              <router-link :to="`/EventosLis/EditEvent/${event.id}`" class="action-btn">
+            <div class="event-actions">
+              <router-link :to="`/EventosLis/EditEvent/${event.id}`" class="action-btn edit-btn" title="Editar evento">
                 <i class="bi bi-pencil"></i>
               </router-link>
-              <button @click="confirmDelete(event.id)" class="action-btn danger">
+              <button @click="confirmDelete(event.id)" class="action-btn delete-btn" title="Eliminar evento">
                 <i class="bi bi-trash"></i>
               </button>
             </div>
           </div>
-          
+
           <p class="event-description">{{ truncateDescription(event.description) }}</p>
           
           <div class="event-meta">
@@ -156,6 +156,7 @@
         :disabled="currentPage === totalPages"
         class="page-btn"
       >
+        < Piotr
         <i class="bi bi-chevron-right"></i>
       </button>
     </div>
@@ -170,84 +171,10 @@ export default {
   name: 'ListaEventos',
   setup() {
     const router = useRouter();
-    
-    // Datos de usuario (simulados)
-    const currentUser = ref({
-      id: 1,
-      role: 'organizer' // Cambiar a 'user' para vista de comprador
-    });
-    
-    // Datos de eventos (simulados - luego reemplazar con API)
-    const events = ref([
-      {
-        id: 1,
-        organizer_id: 1,
-        title: 'Concierto de Jazz Nocturno',
-        description: 'Disfruta de una noche llena de los mejores ritmos de jazz con artistas internacionales.',
-        location: 'Teatro Principal, Ciudad',
-        event_date: '2025-07-15T20:00:00',
-        capacity: 200,
-        tickets_sold: 145,
-        price: 25.99,
-        category: 'concierto',
-        status: 'active',
-       },
-      {
-        id: 2,
-        organizer_id: 2,
-        title: 'Charla de Tecnología Avanzada',
-        description: 'Conoce las últimas tendencias en inteligencia artificial y blockchain con expertos del sector.',
-        location: 'Centro de Convenciones',
-        event_date: '2025-07-20T18:30:00',
-        capacity: 150,
-        tickets_sold: 87,
-        price: 12.50,
-        category: 'conferencia',
-        status: 'active',
-       },
-      {
-        id: 3,
-        organizer_id: 1,
-        title: 'Obra de Teatro: El Mago de Oz',
-        description: 'Clásica obra de teatro familiar con actores profesionales y efectos especiales.',
-        location: 'Auditorio Municipal',
-        event_date: '2025-08-05T17:00:00',
-        capacity: 300,
-        tickets_sold: 210,
-        price: 18.00,
-        category: 'teatro',
-        status: 'active',
-        },
-      {
-        id: 4,
-        organizer_id: 1,
-        title: 'Torneo de Fútbol Local',
-        description: 'Apoya a tu equipo favorito en el torneo anual de la ciudad.',
-        location: 'Estadio Municipal',
-        event_date: '2025-07-25T15:00:00',
-        capacity: 500,
-        tickets_sold: 320,
-        price: 8.00,
-        category: 'deporte',
-        status: 'active',
-         },
-      {
-        id: 5,
-        organizer_id: 1,
-        title: 'Evento Borrador',
-        description: 'Este es un evento que aún no se ha publicado.',
-        location: 'Por definir',
-        event_date: '2025-09-10T19:00:00',
-        capacity: 100,
-        tickets_sold: 0,
-        price: 15.00,
-        category: 'concierto',
-        status: 'draft',
-        image: null
-      }
-    ]);
+    const currentUser = ref({ id: 1, role: 'organizer' });
+    console.log('Current User:', currentUser.value); // Debug: Verifica el usuario actual
 
-    // Filtros
+    const events = ref([]);
     const searchQuery = ref('');
     const categoryFilter = ref('');
     const dateFilter = ref('');
@@ -255,29 +182,58 @@ export default {
     const currentPage = ref(1);
     const itemsPerPage = 6;
 
-    // Computed properties
-    const isOrganizer = computed(() => currentUser.value.role === 'organizer');
+    const isOrganizer = computed(() => {
+      console.log('isOrganizer:', currentUser.value.role === 'organizer'); // Debug: Verifica si es organizador
+      return currentUser.value.role === 'organizer';
+    });
+
+    // 🔹 Cargar eventos desde el backend con fetch
+    // Nota: Asegúrate de que el endpoint http://localhost:8081/events/organizer/1
+    // devuelva eventos con event_date en formato ISO 8601 (ej. "2025-07-15T20:00:00")
+    // Ejemplo de respuesta esperada:
+    // [
+    //   { id: 1, organizer_id: 1, title: "Evento 1", event_date: "2025-07-15T20:00:00", ... },
+    //   { id: 2, organizer_id: 1, title: "Evento 2", event_date: "2025-07-20T18:30:00", ... }
+    // ]
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch(`http://localhost:8081/events/organizer/${currentUser.value.id}`);
+        if (!response.ok) throw new Error('Error al cargar eventos');
+        const data = await response.json();
+        console.log('Fetched Events:', data); // Debug: Verifica los eventos cargados
+        events.value = data;
+      } catch (error) {
+        console.error('Error al obtener eventos:', error);
+        Swal.fire('Error', 'No se pudieron cargar los eventos', 'error');
+      }
+    };
+
+    onMounted(fetchEvents); // Cargar al iniciar
 
     const filteredEvents = computed(() => {
       let result = [...events.value];
-      
-      // Aplicar filtros
+
+      // Aplicar filtro de búsqueda
       if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase();
-        result = result.filter(e => 
-          e.title.toLowerCase().includes(query) || 
+        result = result.filter(e =>
+          e.title.toLowerCase().includes(query) ||
           e.description.toLowerCase().includes(query)
         );
       }
-      
+
+      // Aplicar filtro de categoría
       if (categoryFilter.value) {
         result = result.filter(e => e.category === categoryFilter.value);
       }
-      
+
+      // Aplicar filtro de fecha
       if (dateFilter.value) {
         const now = new Date();
         result = result.filter(e => {
+          if (!e.event_date) return false; // Excluir eventos sin fecha válida
           const eventDate = new Date(e.event_date);
+          if (isNaN(eventDate.getTime())) return false; // Excluir fechas inválidas
           switch (dateFilter.value) {
             case 'hoy':
               return eventDate.toDateString() === now.toDateString();
@@ -296,48 +252,45 @@ export default {
           }
         });
       }
-      
+
+      // Aplicar filtro de estado (solo para organizadores)
       if (isOrganizer.value && statusFilter.value) {
         result = result.filter(e => e.status === statusFilter.value);
-      } else if (!isOrganizer.value) {
-        // Para usuarios normales, solo mostrar eventos activos
-        result = result.filter(e => e.status === 'active');
       }
-      
-      // Ordenar por fecha más cercana
-      result.sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
-      
-      return result;
-    });
 
-    const paginatedEvents = computed(() => {
+      // Ordenar por fecha
+      result.sort((a, b) => {
+        const dateA = new Date(a.event_date);
+        const dateB = new Date(b.event_date);
+        return isNaN(dateA.getTime()) || isNaN(dateB.getTime()) ? 0 : dateA - dateB;
+      });
+
+      // Aplicar paginación
       const start = (currentPage.value - 1) * itemsPerPage;
       const end = start + itemsPerPage;
-      return filteredEvents.value.slice(start, end);
+      return result.slice(start, end);
     });
 
-    const totalPages = computed(() => {
-      return Math.ceil(filteredEvents.value.length / itemsPerPage);
-    });
+    const totalPages = computed(() => Math.ceil(events.value.length / itemsPerPage));
 
-    // Métodos
     const formatDate = (dateString) => {
-      const options = { 
-        weekday: 'long', 
-        day: 'numeric', 
-        month: 'long', 
+      if (!dateString) return 'Fecha no disponible'; // Manejo de fecha nula
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Fecha inválida'; // Manejo de fecha inválida
+      const options = {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
         year: 'numeric',
-        hour: '2-digit', 
-        minute: '2-digit' 
+        hour: '2-digit',
+        minute: '2-digit'
       };
-      return new Date(dateString).toLocaleDateString('es-ES', options);
+      return date.toLocaleDateString('es-ES', options);
     };
 
     const truncateDescription = (text) => {
       const maxLength = 120;
-      return text.length > maxLength 
-        ? text.substring(0, maxLength) + '...' 
-        : text;
+      return text && text.length > maxLength ? text.substring(0, maxLength) + '...' : text || '';
     };
 
     const formatStatus = (status) => {
@@ -350,25 +303,15 @@ export default {
     };
 
     const applyFilters = () => {
-      currentPage.value = 1; // Resetear a primera página al aplicar filtros
+      currentPage.value = 1; // Resetear página al aplicar filtros
     };
 
     const handleBuyClick = (eventId) => {
       router.push(`/eventos/${eventId}/comprar`);
     };
 
+    // 🔸 Confirmar y eliminar evento usando DELETE del backend
     const confirmDelete = (eventId) => {
-      const event = events.value.find(e => e.id === eventId);
-      if (event.tickets_sold > 0) {
-        Swal.fire({
-          title: 'No se puede eliminar',
-          text: 'Este evento ya tiene entradas vendidas. Debes cancelarlo en lugar de eliminarlo.',
-          icon: 'warning',
-          confirmButtonColor: '#f5a623'
-        });
-        return;
-      }
-
       Swal.fire({
         title: '¿Eliminar evento?',
         text: 'Esta acción no se puede deshacer',
@@ -378,39 +321,39 @@ export default {
         cancelButtonColor: '#f5a623',
         confirmButtonText: 'Sí, eliminar',
         cancelButtonText: 'Cancelar'
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
-          deleteEvent(eventId);
+          await deleteEvent(eventId);
         }
       });
     };
 
-    const deleteEvent = (eventId) => {
-      // Simular llamada API
-      events.value = events.value.filter(e => e.id !== eventId);
-      Swal.fire({
-        title: 'Evento eliminado',
-        icon: 'success',
-        confirmButtonColor: '#f5a623'
-      });
+    const deleteEvent = async (eventId) => {
+      try {
+        const response = await fetch(`http://localhost:8081/events/${eventId}`, {
+          method: 'DELETE'
+        });
+        if (!response.ok) throw new Error('Error al eliminar');
+        // 🔁 Recargar lista tras eliminar
+        await fetchEvents();
+        Swal.fire('Evento eliminado', '', 'success');
+      } catch (error) {
+        console.error('Error eliminando evento:', error);
+        Swal.fire('Error', 'No se pudo eliminar el evento', 'error');
+      }
     };
-
-    // Lifecycle hook
-    onMounted(() => {
-      // Aquí iría la llamada a la API para cargar eventos
-      // Ejemplo: fetchEvents();
-    });
 
     return {
       currentUser,
-      isOrganizer,
+      events,
       searchQuery,
       categoryFilter,
       dateFilter,
       statusFilter,
       currentPage,
-      filteredEvents: paginatedEvents,
       totalPages,
+      filteredEvents,
+      isOrganizer,
       formatDate,
       truncateDescription,
       formatStatus,
@@ -705,7 +648,7 @@ export default {
   background: rgba(245, 166, 35, 0.3);
 }
 
-.action-btn.danger:hover {
+.action-btn.delete-btn:hover {
   background: rgba(244, 67, 54, 0.3);
 }
 
@@ -856,4 +799,28 @@ export default {
     justify-content: flex-end;
   }
 }
+
+.event-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #f5a623;
+  transition: color 0.3s ease;
+}
+
+.action-btn:hover {
+  color: #ff416c;
+}
+
+.edit-btn i,
+.delete-btn i {
+  pointer-events: none;
+}
 </style>
+```

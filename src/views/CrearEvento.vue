@@ -388,40 +388,55 @@ export default {
       });
     };
 
-    // Enviar formulario
     const submitEvent = async () => {
-      try {
-        // Aquí iría la llamada a tu API
-        const formData = new FormData();
-        Object.keys(event.value).forEach(key => {
-          if (key !== 'images') {
-            formData.append(key, event.value[key]);
-          }
-        });
-        event.value.images.forEach((img, index) => {
-          formData.append(`images[${index}]`, img.file);
-        });
+  try {
+    const organizerId = 1;
 
-        // Simulación de éxito
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        Swal.fire({
-          title: '¡Evento creado!',
-          text: 'Tu evento ha sido publicado exitosamente',
-          icon: 'success',
-          confirmButtonColor: '#f5a623'
-        }).then(() => {
-          router.push('/OrgHome');
-        });
-      } catch (error) {
-        Swal.fire({
-          title: 'Error',
-          text: 'Ocurrió un error al crear el evento',
-          icon: 'error',
-          confirmButtonColor: '#ff416c'
-        });
-      }
-    };
+    // Combina la fecha y hora en formato ISO para eventDate
+    const eventDate = new Date(`${event.value.date}T${event.value.time}`).toISOString();
+
+    const response = await fetch('http://localhost:8081/events', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        id: 0, // Asumimos que el backend ignora este valor y autogenera el ID
+        organizerId: organizerId,
+        title: event.value.title,
+        description: event.value.description,
+        location: event.value.location,
+        eventDate: eventDate,
+        capacity: event.value.capacity,
+        status: 'ACTIVE' // Puedes ajustar según tu lógica
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al crear el evento');
+    }
+
+    const data = await response.json();
+
+    Swal.fire({
+      title: '¡Evento creado!',
+      text: 'Tu evento ha sido publicado exitosamente.',
+      icon: 'success',
+      confirmButtonColor: '#f5a623'
+    });
+
+    router.push('/OrgHome');
+  } catch (error) {
+    console.error(error);
+    Swal.fire({
+      title: 'Error',
+      text: 'No se pudo crear el evento. Inténtalo nuevamente.',
+      icon: 'error',
+      confirmButtonColor: '#f5a623'
+    });
+  }
+};
+
 
     // Computed properties
     const isStepValid = computed(() => steps[currentStep.value].validator());
