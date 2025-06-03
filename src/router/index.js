@@ -4,6 +4,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 // Importa tus componentes/vistas
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
+import Eventos from '../views/Eventos.vue'
+import ComprarTicket from '../views/ComprarTicket.vue'
 
 const routes = [
   {
@@ -15,7 +17,9 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login
-  }
+  },
+  { path: '/Eventos', name: 'Eventos', component: Eventos},
+  { path: '/ComprarTicket', name: 'ComprarTicket', component: ComprarTicket},
 ]
 
 const router = createRouter({
