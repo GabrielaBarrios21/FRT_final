@@ -50,12 +50,15 @@
     </div>
 
     <!-- Botón de compra -->
-    <button class="btn-comprar" @click="realizarCompra">Comprar ahora</button>
-    <div v-if="compraExitosa" class="mensaje-exito">🎉 ¡Compra realizada con éxito!</div>
+    <button class="btn-comprar" @click="realizarCompra" :disabled="botonDeshabilitado">
+      Comprar ahora
+    </button>
   </div>
 </template>
 
 <script>
+import Swal from 'sweetalert2'
+
 export default {
   name: 'Comprar',
   data() {
@@ -70,7 +73,6 @@ export default {
       cantidad: 4,
       asientos: [],
       asientosSeleccionados: [],
-      compraExitosa: false
     }
   },
   mounted() {
@@ -82,6 +84,14 @@ export default {
     },
     tipoEntrada() {
       this.asientosSeleccionados = []
+    }
+  },
+  computed: {
+    botonDeshabilitado() {
+      if (this.tipoEntrada === 'numerada') {
+        return this.asientosSeleccionados.length !== this.cantidad
+      }
+      return this.cantidad < 1
     }
   },
   methods: {
@@ -110,79 +120,134 @@ export default {
         this.asientosSeleccionados.splice(index, 1)
       } else {
         if (this.asientosSeleccionados.length === this.cantidad) {
-          this.asientosSeleccionados.shift() // elimina el más antiguo
+          this.asientosSeleccionados.shift()
         }
         this.asientosSeleccionados.push(asiento.codigo)
       }
     },
+    mostrarError(mensaje) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: mensaje
+      })
+    },
+    mostrarExito() {
+  Swal.fire({
+    icon: 'success',
+    title: '¡Compra realizada con éxito!',
+    showConfirmButton: false,
+    timer: 2500,
+    timerProgressBar: true,
+    willClose: () => {
+      this.$router.push('/eventos')
+    }
+  })
+},
     realizarCompra() {
-      if (this.tipoEntrada === 'numerada' && this.asientosSeleccionados.length !== this.cantidad) {
-        alert(`Debes seleccionar exactamente ${this.cantidad} asiento(s).`)
+      if (!this.cantidad || this.cantidad < 1) {
+        this.mostrarError('Por favor, ingresa una cantidad válida de entradas.')
         return
       }
-      this.compraExitosa = true
+
+      if (this.tipoEntrada === 'numerada') {
+        if (this.asientosSeleccionados.length !== this.cantidad) {
+          this.mostrarError(`Debes seleccionar exactamente ${this.cantidad} asiento(s).`)
+          return
+        }
+      } else if (this.tipoEntrada === 'general') {
+        if (this.cantidad > 10) {
+          this.mostrarError('No puedes comprar más de 10 entradas generales.')
+          return
+        }
+      }
+
+      this.mostrarExito()
     }
   }
 }
 </script>
 
+
 <style scoped>
 .comprar-container {
-  padding: 40px;
+  padding: 50px 30px;
   color: white;
 }
 
 .grid-container {
   display: flex;
-  gap: 40px;
   flex-wrap: wrap;
+  gap: 30px;
 }
 
 .info-panel {
   flex: 1;
-  min-width: 250px;
-  background-color: #ffffff22;
+  min-width: 280px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
   padding: 30px;
   border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.info-panel h2 {
+  color: #ffd166;
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+}
+
+.info-panel p,
+label {
+  margin-bottom: 10px;
+  display: block;
 }
 
 .input-select {
   width: 100%;
-  margin: 10px 0 20px;
+  margin-bottom: 20px;
   padding: 10px;
-  border-radius: 8px;
+  border-radius: 10px;
   border: none;
+  font-size: 1rem;
 }
 
 .asientos-panel {
   flex: 2;
-  min-width: 300px;
+  min-width: 320px;
 }
 
 .escenario {
   background-color: #ff416c;
   color: white;
   text-align: center;
-  padding: 10px;
-  margin-bottom: 15px;
+  padding: 12px;
   font-weight: bold;
-  border-radius: 8px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .asientos-grid {
   display: grid;
   grid-template-columns: repeat(18, 1fr);
-  gap: 6px;
+  gap: 5px;
+  margin-bottom: 15px;
 }
 
 .asiento {
   background-color: #1e90ff;
-  border-radius: 4px;
-  padding: 5px 0;
-  text-align: center;
+  padding: 6px 0;
   font-size: 10px;
+  border-radius: 5px;
   color: white;
+  text-align: center;
   cursor: pointer;
+  transition: 0.2s;
+}
+
+.asiento:hover:not(.ocupado):not(.seleccionado) {
+  background-color: #0077cc;
 }
 
 .asiento.ocupado {
@@ -219,11 +284,11 @@ export default {
   background-color: #f5a623;
   color: black;
   font-weight: bold;
-  padding: 12px 30px;
+  padding: 14px 32px;
   border-radius: 30px;
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease;
 }
 
 .btn-comprar:hover {
@@ -231,9 +296,34 @@ export default {
   transform: scale(1.05);
 }
 
+.btn-comprar:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 .mensaje-exito {
-  margin-top: 20px;
+  margin-top: 25px;
   font-size: 1.3rem;
   color: #00ff99;
+  font-weight: bold;
+}
+
+.mensaje-error {
+  margin-top: 20px;
+  background-color: #ff4d4d;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  color: white;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 </style>

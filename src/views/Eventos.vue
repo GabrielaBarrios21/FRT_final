@@ -1,18 +1,17 @@
 <template>
-  <div class="eventos-container">
     <h2 class="titulo-seccion">Eventos disponibles</h2>
-
     <div class="eventos-lista">
-      <div v-for="evento in eventos" :key="evento.id" class="evento-card">
-        <h3>{{ evento.title }}</h3>
-        <p>{{ evento.description }}</p>
-        <p><strong>Fecha:</strong> {{ formatoFecha(evento.event_date) }}</p>
-        <p><strong>Lugar:</strong> {{ evento.location }}</p>
-        <p><strong>Capacidad:</strong> {{ evento.capacity }}</p>
-        <router-link :to="`/ComprarTicket`" class="btn-comprar">Comprar entradas</router-link>
+      <div v-for="evento in eventos" :key="evento.id" class="evento-card animate__animated animate__fadeInUp">
+        <h3 class="evento-titulo">{{ evento.title }}</h3>
+        <p class="evento-descripcion">{{ evento.description }}</p>
+        <p><i class="bi bi-calendar-event"></i> <strong>Fecha:</strong> {{ formatoFecha(evento.event_date) }}</p>
+        <p><i class="bi bi-geo-alt-fill"></i> <strong>Lugar:</strong> {{ evento.location }}</p>
+        <p><i class="bi bi-people-fill"></i> <strong>Capacidad:</strong> {{ evento.capacity }}</p>
+        <router-link :to="`/ComprarTicket`" class="btn-comprar">
+          <i class="bi bi-ticket-perforated-fill"></i> Comprar entradas
+        </router-link>
       </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -50,50 +49,79 @@ export default {
 
 <style scoped>
 .eventos-container {
-  padding: 50px;
+  padding: 60px 30px;
+  background: linear-gradient(135deg, #1f1f1f 0%, #2c2c2c 100%);
   color: white;
+  min-height: 100vh;
 }
 
 .titulo-seccion {
-  font-size: 2.5rem;
-  margin-bottom: 30px;
+  font-size: 2.8rem;
+  margin-bottom: 40px;
   text-align: center;
   color: #f5a623;
+  font-weight: bold;
 }
 
 .eventos-lista {
   display: grid;
-  gap: 30px;
+  gap: 40px;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
 .evento-card {
-  background-color: #ffffff22;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
-  padding: 20px;
-  backdrop-filter: blur(5px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  padding: 25px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.evento-card h3 {
+.evento-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+
+.evento-titulo {
   color: #ffda79;
-  font-size: 1.5rem;
+  font-size: 1.7rem;
+  margin-bottom: 10px;
+}
+
+.evento-descripcion {
+  font-size: 1rem;
+  margin-bottom: 15px;
+  color: #ddd;
+}
+
+.evento-card p {
+  margin: 6px 0;
+  font-size: 0.95rem;
+}
+
+.evento-card i {
+  color: #00000086;
+  margin-right: 5px;
 }
 
 .btn-comprar {
   display: inline-block;
-  margin-top: 15px;
-  background-color: #f5a623;
+  margin-top: 20px;
+  background: linear-gradient(45deg, #f5a623, #ff416c);
   color: black;
   font-weight: bold;
-  padding: 10px 20px;
-  border-radius: 20px;
+  padding: 12px 25px;
+  border-radius: 30px;
   text-decoration: none;
-  transition: all 0.3s;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .btn-comprar:hover {
-  background-color: #ff416c;
-  transform: scale(1.05);
+  transform: scale(1.07);
+  background: linear-gradient(45deg, #ff416c, #f5a623);
 }
 </style>
