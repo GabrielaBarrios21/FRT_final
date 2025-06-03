@@ -17,7 +17,7 @@
 
       <div class="extra-links">
         <p><router-link to="#">¿Olvidaste tu contraseña?</router-link></p>
-        <p><router-link to="#">¿No tienes cuenta? Regístrate</router-link></p>
+        <p><router-link to="#">¿No tienes una cuenta?¡Regístrate Aqui!</router-link></p>
       </div>
     </form>
   </div>
@@ -38,7 +38,7 @@ function handleSubmit() {
     usuario: usuario.value,
     contrasena: contrasena.value
   })
-  // Aquí puedes agregar lógica para enviar los datos (por ejemplo, llamada a una API)
+  
 }
 </script>
 
