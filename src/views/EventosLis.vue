@@ -76,7 +76,7 @@
       <!-- Tarjetas de eventos -->
       <div v-for="event in filteredEvents" :key="event.id" class="event-card">
         <div class="event-image">
-          <img :src="event.image || 'https://via.placeholder.com/300x200?text=FastEvents'" alt="Evento">
+        
           <div class="event-badge" :class="event.status">
             {{ formatStatus(event.status) }}
           </div>
@@ -191,8 +191,7 @@ export default {
         price: 25.99,
         category: 'concierto',
         status: 'active',
-        image: 'https://images.unsplash.com/photo-1501612780327-45045538702b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80'
-      },
+       },
       {
         id: 2,
         organizer_id: 2,
@@ -205,8 +204,7 @@ export default {
         price: 12.50,
         category: 'conferencia',
         status: 'active',
-        image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80'
-      },
+       },
       {
         id: 3,
         organizer_id: 1,
@@ -219,8 +217,7 @@ export default {
         price: 18.00,
         category: 'teatro',
         status: 'active',
-        image: 'https://images.unsplash.com/photo-1547153760-18fc86324498?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80'
-      },
+        },
       {
         id: 4,
         organizer_id: 1,
@@ -233,8 +230,7 @@ export default {
         price: 8.00,
         category: 'deporte',
         status: 'active',
-        image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1605&q=80'
-      },
+         },
       {
         id: 5,
         organizer_id: 1,
@@ -627,7 +623,7 @@ export default {
 
 .event-image {
   position: relative;
-  height: 200px;
+  height: 45px;
   overflow: hidden;
 }
 

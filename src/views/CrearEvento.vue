@@ -118,26 +118,6 @@
             >
           </div>
 
-          <div class="form-group">
-            <label><i class="bi bi-globe"></i> Tipo de ubicación</label>
-            <div class="radio-group">
-              <label>
-                <input 
-                  type="radio" 
-                  v-model="event.locationType" 
-                  value="presencial" 
-                  checked
-                > Presencial
-              </label>
-              <label>
-                <input 
-                  type="radio" 
-                  v-model="event.locationType" 
-                  value="virtual"
-                > Virtual
-              </label>
-            </div>
-          </div>
         </div>
 
         <!-- Paso 3: Entradas -->
@@ -217,33 +197,7 @@
         <!-- Paso 4: Imágenes y confirmación -->
         <div v-if="currentStep === 3" class="form-step">
           <div class="form-group">
-            <label><i class="bi bi-image"></i> Imágenes del evento</label>
-            <div class="image-uploader">
-              <label for="imageUpload" class="upload-area">
-                <i class="bi bi-cloud-arrow-up"></i>
-                <span>Arrastra imágenes o haz clic para seleccionar</span>
-                <input 
-                  type="file" 
-                  id="imageUpload" 
-                  accept="image/*" 
-                  multiple 
-                  @change="handleImageUpload"
-                  hidden
-                >
-              </label>
-              <div v-if="event.images.length > 0" class="image-preview">
-                <div 
-                  v-for="(image, index) in event.images" 
-                  :key="index" 
-                  class="preview-item"
-                >
-                  <img :src="image.preview" alt="Preview">
-                  <button @click="removeImage(index)" class="remove-btn">
-                    <i class="bi bi-x-circle"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
+           
           </div>
 
           <!-- Resumen del evento -->
