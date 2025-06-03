@@ -34,7 +34,7 @@
 
       <div class="extra-links">
         <p><router-link to="#">¿Olvidaste tu contraseña?</router-link></p>
-        <p><router-link to="#">¿No tienes cuenta? Regístrate</router-link></p>
+        <p><router-link to="#">¿No tienes una cuenta?¡Regístrate Aqui!</router-link></p>
       </div>
     </form>
   </div>

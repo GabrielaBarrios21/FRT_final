@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 // Importa tus componentes/vistas
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
+import Pagos from '../views/Pagos.vue' // Añade esta línea para importar Pagos.vue
 
 const routes = [
   {
@@ -15,6 +16,11 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/pagos', // Añade esta ruta para Pagos.vue
+    name: 'Pagos',
+    component: Pagos
   }
 ]
 
