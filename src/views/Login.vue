@@ -5,12 +5,29 @@
     <form @submit.prevent="handleSubmit">
       <div class="form-group">
         <label for="usuario"><i class="bi bi-person-fill"></i> Usuario</label>
-        <input type="text" id="usuario" v-model="usuario" required>
+        <input 
+          type="text" 
+          id="usuario" 
+          v-model="usuario" 
+          placeholder="ejemplo@gmail.com"
+          required
+        >
       </div>
 
       <div class="form-group">
         <label for="contrasena"><i class="bi bi-lock-fill"></i> Contraseña</label>
-        <input type="password" id="contrasena" v-model="contrasena" required>
+        <div class="password-input">
+          <input 
+            :type="showPassword ? 'text' : 'password'" 
+            id="contrasena" 
+            v-model="contrasena" 
+            placeholder="••••••••"
+            required
+          >
+          <button type="button" class="toggle-password" @click="togglePassword">
+            <i class="bi" :class="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+          </button>
+        </div>
       </div>
 
       <button type="submit" class="btn-login"><i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión</button>
@@ -29,17 +46,19 @@ export default {
   data() {
     return {
       usuario: '',
-      contrasena: ''
+      contrasena: '',
+      showPassword: false
     };
   },
   methods: {
     handleSubmit() {
-      // Simulate form submission to procesar_login.php
       console.log('Form submitted:', {
         usuario: this.usuario,
         contrasena: this.contrasena
       });
-      // Add logic to handle form submission (e.g., API call)
+    },
+    togglePassword() {
+      this.showPassword = !this.showPassword;
     }
   }
 };
@@ -54,7 +73,7 @@ export default {
 
 body {
   font-family: 'Montserrat', sans-serif;
-  background: linear-gradient(120deg, #230134, #6A1B9A, #9D76F7); /* Dark lilac to medium lilac to light medium lilac */
+  background: linear-gradient(120deg, #230134, #6A1B9A, #9D76F7);
   color: white;
   min-height: 100vh;
   display: flex;
@@ -83,6 +102,7 @@ body {
 
 .form-group {
   margin-bottom: 20px;
+  text-align: left;
 }
 
 label {
@@ -90,6 +110,7 @@ label {
   font-weight: bold;
   margin-bottom: 8px;
   color: #e0e0e0;
+  text-align: left;
 }
 
 input {
@@ -102,10 +123,36 @@ input {
   color: white;
   font-size: 1rem;
   transition: 0.3s;
+  text-align: left;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 input:focus {
   background: rgba(255, 255, 255, 0.2);
+}
+
+.password-input {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 5px;
+}
+
+.toggle-password:hover {
+  color: #f5a623;
 }
 
 .btn-login {
@@ -119,6 +166,7 @@ input:focus {
   font-size: 1rem;
   cursor: pointer;
   transition: 0.3s ease-in-out;
+  margin-top: 10px;
 }
 
 .btn-login:hover {
