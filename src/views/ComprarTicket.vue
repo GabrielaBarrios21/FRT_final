@@ -38,14 +38,14 @@
         </div>
 
         <!-- Asientos seleccionados -->
-        <div class="seleccionados-container" v-if="asientosSeleccionados.length">
+        <center><div class="seleccionados-container" v-if="asientosSeleccionados.length">
           <h4>Asientos seleccionados:</h4>
           <div class="chips">
             <span class="chip" v-for="(asiento, index) in asientosSeleccionados" :key="index">
               {{ asiento }}
             </span>
           </div>
-        </div>
+        </div></center>
       </div>
     </div>
 
@@ -214,7 +214,7 @@ label {
 
 .asientos-panel {
   flex: 2;
-  min-width: 620px;
+  min-width: 720px;
   min-height: auto;
 }
 
