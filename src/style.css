@@ -5,12 +5,18 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background: linear-gradient(120deg, #150120, #4f416d); /* Dark lilac to light medium lilac */
+  background: linear-gradient(120deg, #150120, #4f416d);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  font-size: 16px;
+  height: 100%;
+  width: 100%;
 }
 
 a {

@@ -23,26 +23,23 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Login',
-  data() {
-    return {
-      usuario: '',
-      contrasena: ''
-    };
-  },
-  methods: {
-    handleSubmit() {
-      // Simulate form submission to procesar_login.php
-      console.log('Form submitted:', {
-        usuario: this.usuario,
-        contrasena: this.contrasena
-      });
-      // Add logic to handle form submission (e.g., API call)
-    }
-  }
-};
+<script setup>
+import { ref } from 'vue'
+
+defineOptions({
+  name: 'Login'
+})
+
+const usuario = ref('')
+const contrasena = ref('')
+
+function handleSubmit() {
+  console.log('Form submitted:', {
+    usuario: usuario.value,
+    contrasena: contrasena.value
+  })
+  // Aquí puedes agregar lógica para enviar los datos (por ejemplo, llamada a una API)
+}
 </script>
 
 <style scoped>

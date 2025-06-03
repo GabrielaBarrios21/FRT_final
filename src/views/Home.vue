@@ -1,20 +1,5 @@
 <template>
   <div>
-    <!-- Navbar -->
-    <div class="navbar-container">
-      <div class="brand">
-        <i class="bi bi-lightning-charge-fill"></i>
-        <span style="color: #f5a623;">Fast</span><span style="color: white;">Events</span>
-      </div>
-      <div class="navbar">
-        <router-link to="/" class="nav-item active">Home</router-link>
-        <router-link to="/about" class="nav-item">About</router-link>
-        <router-link to="/eventos" class="nav-item">Eventos</router-link>
-        <router-link to="/contacto" class="nav-item">Contacto</router-link>
-        <router-link to="/login" class="nav-item">Login</router-link>
-      </div>
-    </div>
-
     <!-- Hero -->
     <section class="hero-section">
       <div class="hero-content">
@@ -33,10 +18,10 @@
   </div>
 </template>
 
-<script>
-export default {
+<script setup>
+defineOptions({
   name: 'Home'
-}
+})
 </script>
 
 <style scoped>
