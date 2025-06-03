@@ -1,3 +1,4 @@
+/* Reset y estilos base */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -13,12 +14,42 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-html {
-  font-size: 16px;
-  height: 100%;
-  width: 100%;
+/* Reset universal */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
+/* Estructura principal */
+html {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  place-items: center;
+}
+
+#app {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tipografía y elementos básicos */
 a {
   font-weight: 500;
   color: #646cff;
@@ -28,17 +59,10 @@ a:hover {
   color: #535bf2;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  margin-bottom: 0.5em;
 }
 
 button {
@@ -62,15 +86,12 @@ button:focus-visible {
 
 .card {
   padding: 2em;
+  margin: 1em 0;
+  border-radius: 8px;
+  background-color: #ffffff15;
 }
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
+/* Estilos responsivos */
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -81,5 +102,59 @@ button:focus-visible {
   }
   button {
     background-color: #f9f9f9;
+  }
+  .card {
+    background-color: #f9f9f9;
+  }
+}
+
+/* Clases utilitarias */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Asegura que las imágenes no causen desbordamiento */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Prevenir desbordamiento en elementos flex */
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+/* Media queries para responsividad */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2.5em;
+  }
+  
+  button {
+    padding: 0.5em 1em;
+  }
+  
+  .card {
+    padding: 1.5em;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 2em;
+  }
+  
+  :root {
+    font-size: 14px;
   }
 }

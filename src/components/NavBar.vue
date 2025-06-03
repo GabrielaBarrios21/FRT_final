@@ -50,7 +50,7 @@ const user = useUserStore()
 
 //BORRAR ESTO DESPUES
 // Simulación de cambio de rol para pruebas
-user.setRole(2)
+user.setRole(1)
 
 const showNotifications = () => {
   Swal.fire({
@@ -91,7 +91,7 @@ const showNotifications = () => {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background: #16213e; /* Fondo oscuro profesional */
+  background: #230134; /* Fondo oscuro profesional */
   flex-wrap: wrap;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   position: relative;
