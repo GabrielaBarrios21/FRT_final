@@ -24,7 +24,8 @@
 
       <!-- Cliente o organizador -->
       <template v-else>
-        <router-link to="/perfil" class="nav-item">Perfil</router-link>
+        <!-- <router-link to="/perfil-cliente" class="nav-item">Perfil</router-link> -->
+        <router-link to="/perfil-organizador" class="nav-item">Perfil</router-link> 
 
         <!-- Solo organizador -->
         <router-link v-if="user.local === 3" to="/crear-evento" class="nav-item">Crear Evento</router-link>
@@ -45,12 +46,12 @@ import { useUserStore } from '/src/stores/user.js'
 import Swal from 'sweetalert2'
 
 const isOpen = ref(false)
-const notificationsCount = ref(3) // Puedes cambiar esto por un valor dinámico
+const notificationsCount = ref(1) // Puedes cambiar esto por un valor dinámico
 const user = useUserStore()
 
 //BORRAR ESTO DESPUES
 // Simulación de cambio de rol para pruebas
-user.setRole(1)
+user.setRole(2)
 
 const showNotifications = () => {
   Swal.fire({
@@ -59,21 +60,11 @@ const showNotifications = () => {
       <div class="text-left">
         <div class="notification-item">
           <strong>Nuevo evento</strong>
-          <p>Se ha creado el evento "Concierto de Verano" cerca de ti</p>
+          <p>Cancelación: Concierto de Jazz Nocturno</p>
           <small>Hace 2 horas</small>
         </div>
         <hr>
-        <div class="notification-item">
-          <strong>Recordatorio</strong>
-          <p>Tu evento "Taller de Cocina" comienza en 2 días</p>
-          <small>Hace 1 día</small>
-        </div>
-        <hr>
-        <div class="notification-item">
-          <strong>Mensaje nuevo</strong>
-          <p>Tienes un nuevo mensaje del organizador</p>
-          <small>Hace 3 días</small>
-        </div>
+
       </div>
     `,
     confirmButtonText: 'Cerrar',
@@ -91,7 +82,7 @@ const showNotifications = () => {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background: #230134; /* Fondo oscuro profesional */
+  background: #230134; 
   flex-wrap: wrap;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   position: relative;
@@ -203,7 +194,7 @@ const showNotifications = () => {
     display: none;
     flex-direction: column;
     width: 100%;
-    background: #0f3460;
+    background: #230134;
     margin-top: 1rem;
     border-radius: 8px;
     padding: 1rem 0;

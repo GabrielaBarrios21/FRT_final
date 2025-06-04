@@ -214,7 +214,7 @@ defineOptions({
   width: 100%;
   overflow-x: hidden;
   font-family: 'Montserrat', sans-serif;
-  background: linear-gradient(120deg, #230134, #6A1B9A, #9D76F7);
+  background: linear-gradient(120deg, #150120, #362d4b);
   color: white;
 }
 

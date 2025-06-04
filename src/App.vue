@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <NavBar />
+    <NavBar v-if="showNavbar" />
     <main class="main-content">
       <router-view />
     </main>
@@ -9,10 +9,17 @@
 
 <script setup>
 import NavBar from './components/NavBar.vue';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
 defineOptions({
   name: 'App'
 })
+
+const route = useRoute();
+const showNavbar = computed(() => {
+  return !['/login', '/registro'].includes(route.path);
+});
 </script>
 
 <style>

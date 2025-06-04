@@ -1,61 +1,129 @@
 <template>
-  <div class="login-container animate__animated animate__fadeInDown">
-    <h2><i class="bi bi-lightning-charge-fill"></i> FastEvents</h2>
+  <div class="parent-container">
+    <div class="login-container animate__animated animate__fadeInDown">
+      <h2><i class="bi bi-lightning-charge-fill"></i> FastEvents</h2>
 
-    <form @submit.prevent="handleSubmit">
-      <div class="form-group">
-        <label for="usuario"><i class="bi bi-person-fill"></i> Usuario</label>
-        <input 
-          type="text" 
-          id="usuario" 
-          v-model="usuario" 
-          placeholder="ejemplo@gmail.com"
-          required
-        >
-      </div>
-
-      <div class="form-group">
-        <label for="contrasena"><i class="bi bi-lock-fill"></i> Contraseña</label>
-        <div class="password-input">
+      <form @submit.prevent="handleSubmit">
+        <div class="form-group">
+          <label for="usuario"><i class="bi bi-person-fill"></i> Usuario</label>
           <input 
-            :type="showPassword ? 'text' : 'password'" 
-            id="contrasena" 
-            v-model="contrasena" 
-            placeholder="••••••••"
+            type="text" 
+            id="usuario" 
+            v-model="usuario" 
+            placeholder="ejemplo@gmail.com"
             required
           >
-          <button type="button" class="toggle-password" @click="togglePassword">
-            <i class="bi" :class="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
-          </button>
         </div>
-      </div>
 
-      <button type="submit" class="btn-login"><i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión</button>
+        <div class="form-group">
+          <label for="contrasena"><i class="bi bi-lock-fill"></i> Contraseña</label>
+          <div class="password-input">
+            <input 
+              :type="showPassword ? 'text' : 'password'" 
+              id="contrasena" 
+              v-model="contrasena" 
+              placeholder="••••••••"
+              required
+            >
+            <button type="button" class="toggle-password" @click="togglePassword">
+              <i class="bi" :class="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+            </button>
+          </div>
+        </div>
 
-      <div class="extra-links">
-        <p><router-link to="#">¿Olvidaste tu contraseña?</router-link></p>
-        <p><router-link to="#">¿No tienes una cuenta?¡Regístrate Aqui!</router-link></p>
-      </div>
-    </form>
+        <button type="submit" class="btn-login" :disabled="loading">
+          <span v-if="!loading">
+            <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+          </span>
+          <span v-else>
+            <i class="bi bi-arrow-repeat spinner"></i> Procesando...
+          </span>
+        </button>
+
+        <div class="extra-links">
+          <p><router-link to="#">¿Olvidaste tu contraseña?</router-link></p>
+          <p><router-link to="/registro">¿No tienes una cuenta?¡Regístrate Aqui!</router-link></p>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
 <script>
+import Swal from 'sweetalert2';
+import axios from 'axios';
+
 export default {
   name: 'Login',
   data() {
     return {
       usuario: '',
       contrasena: '',
-      showPassword: false
+      showPassword: false,
+      loading: false
     };
   },
   methods: {
-    handleSubmit() {
-      console.log('Form submitted:', {
-        usuario: this.usuario,
-        contrasena: this.contrasena
-      });
+    async handleSubmit() {
+      this.loading = true;
+      
+      try {
+        // Configuración de la petición
+        const params = new URLSearchParams();
+        params.append('email', this.usuario);
+        params.append('password', this.contrasena);
+
+        // Realizar la petición al backend
+        const response = await axios.post('http://localhost:8085/users/login', params, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        });
+
+        // Si la respuesta es exitosa
+        if (response.status === 200) {
+          // Guardar datos del usuario (puedes usar Vuex o localStorage)
+          localStorage.setItem('user', JSON.stringify(response.data));
+          
+          // Mostrar notificación de éxito
+          Swal.fire({
+            title: '¡Bienvenido!',
+            icon: 'success',
+            html: `
+              <div class="text-left">
+                <div class="notification-item">
+                  <strong>Inicio de sesión exitoso</strong>
+                  <p>Has iniciado sesión correctamente como ${response.data.email}</p>
+                </div>
+              </div>
+            `,
+            confirmButtonText: 'Continuar',
+            background: '#1a1a2e',
+            color: '#ffffff',
+            showCloseButton: true,
+            width: '500px'
+          }).then(() => {
+            // Redirigir a la página principal
+            this.$router.push('/');
+          });
+        }
+      } catch (error) {
+        // Manejo de errores
+        console.error('Error en el login:', error);
+        
+        Swal.fire({
+          title: 'Error',
+          text: 'Credenciales incorrectas. Por favor, inténtalo de nuevo.',
+          icon: 'error',
+          confirmButtonText: 'Entendido',
+          background: '#1a1a2e',
+          color: '#ffffff',
+          showCloseButton: true,
+          width: '500px'
+        });
+      } finally {
+        this.loading = false;
+      }
     },
     togglePassword() {
       this.showPassword = !this.showPassword;
@@ -65,20 +133,12 @@ export default {
 </script>
 
 <style scoped>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Montserrat', sans-serif;
-  background: linear-gradient(120deg, #230134, #6A1B9A, #9D76F7);
-  color: white;
-  min-height: 100vh;
+.parent-container {
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 100vh;
+  width: 100%;
 }
 
 .login-container {
