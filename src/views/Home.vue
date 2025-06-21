@@ -282,40 +282,48 @@ h2 {
 
 /* Posiciona cada imagen */
 .hero-right img:nth-child(1) {
-  top: 0;
-  left: 0;
+  top: 10px;
+  left: -50px;
   z-index: 3;
   transform: rotate(3deg);
 }
 
 .hero-right img:nth-child(2) {
-  top: 30px;
-  left: 50px;
+  top: 90px;
+  left: 100px;
   z-index: 2;
   transform: rotate(-5deg);
   width: 75%;
 }
 
 .hero-right img:nth-child(3) {
-  top: 60px;
-  left: 100px;
+  top: -40px;
+  left: 150px;
   z-index: 1;
   transform: rotate(2deg);
   width: 70%;
 }
 
 /* Efecto hover */
-.hero-right:hover img:nth-child(1) {
+
+/* .hero-right:hover img:nth-child(1) {
   transform: rotate(5deg) translateY(-10px);
+  width: 70%;
+  top: 20px;
+  left: 30px;
 }
 
 .hero-right:hover img:nth-child(2) {
   transform: rotate(-7deg) translateY(-5px);
+  width: 70%;
+  
 }
 
 .hero-right:hover img:nth-child(3) {
   transform: rotate(4deg) translateY(-5px);
-}
+  width: 70%;
+  top: 0;
+} */
 
 /* Buttons */
 .btn-cta {

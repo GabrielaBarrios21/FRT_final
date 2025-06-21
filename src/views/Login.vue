@@ -41,8 +41,8 @@
         </button>
 
         <div class="extra-links">
-          <p><router-link to="#">¿Olvidaste tu contraseña?</router-link></p>
-          <p><router-link to="/registro">¿No tienes una cuenta?¡Regístrate Aqui!</router-link></p>
+          <p><router-link to="#"><u>¿Olvidaste tu contraseña?</u></router-link></p>
+          <p><router-link to="/registro">¿No tienes una cuenta? <u>¡Regístrate aquí!</u></router-link></p>
         </div>
       </form>
     </div>
